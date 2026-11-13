@@ -1,0 +1,50 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python -m snake.prepare
+    deps:
+    - path: snake/game.py
+      hash: md5
+      md5: cc390c80fb61cdce21bc068f238cb940
+      size: 2269
+    - path: snake/prepare.py
+      hash: md5
+      md5: 1a1dacd310cd734e27023644ced0d85f
+      size: 943
+    outs:
+    - path: data/rollouts.json
+      hash: md5
+      md5: 88adfccbf15c08f0c3a6ef45d7b121a0
+      size: 61617
+  train:
+    cmd: python -m snake.train --episodes 30000 --seed 42
+    deps:
+    - path: data/rollouts.json
+      hash: md5
+      md5: 88adfccbf15c08f0c3a6ef45d7b121a0
+      size: 61617
+    - path: snake/agent.py
+      hash: md5
+      md5: c413382712fcc39ae8faeb0f3a05e434
+      size: 833
+    - path: snake/game.py
+      hash: md5
+      md5: cc390c80fb61cdce21bc068f238cb940
+      size: 2269
+    - path: snake/train.py
+      hash: md5
+      md5: 7c6eff2ee5008f03c35cd2c71d205b50
+      size: 2749
+    outs:
+    - path: models/metadata.json
+      hash: md5
+      md5: e807373330362a27249d577906bbf3e6
+      size: 170
+    - path: models/metrics.json
+      hash: md5
+      md5: e408147b858ea62197c255babf97c5fd
+      size: 62
+    - path: models/q.npz
+      hash: md5
+      md5: cc59f5172de3c03b266f7d9b47cdd7a5
+      size: 2600

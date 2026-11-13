@@ -1,0 +1,17 @@
+# Only for this managed cloud's HTTPS proxy; normal Ubuntu uses compose.yaml alone.
+services:
+  mlflow:
+    build:
+      secrets: [proxy_ca]
+  trainer:
+    build:
+      secrets: [proxy_ca]
+  api:
+    build:
+      secrets: [proxy_ca]
+  ui:
+    build:
+      secrets: [proxy_ca]
+secrets:
+  proxy_ca:
+    file: ${CODEX_PROXY_CERT}

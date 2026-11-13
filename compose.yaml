@@ -1,0 +1,76 @@
+services:
+  mlflow:
+    image: snake-aiops:local
+    build: .
+    command: mlflow server --workers 1 --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////tracking/mlflow.db --artifacts-destination /tracking/artifacts --serve-artifacts
+    mem_limit: 600m
+    ports: ["127.0.0.1:5000:5000"]
+    volumes: ["tracking:/tracking"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  trainer:
+    image: snake-aiops:local
+    build: .
+    profiles: ["training"]
+    working_dir: /app
+    command: dvc repro
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      NO_PROXY: localhost,127.0.0.1,mlflow,api
+      no_proxy: localhost,127.0.0.1,mlflow,api
+    volumes: [".:/app"]
+    shm_size: 256mb
+    mem_limit: 1800m
+    cpus: 2
+    depends_on:
+      mlflow:
+        condition: service_healthy
+  api:
+    image: snake-aiops:local
+    build: .
+    command: uvicorn snake.api:app --host 0.0.0.0 --port 8000
+    volumes: ["./models:/app/models:ro"]
+    mem_limit: 300m
+    ports: ["127.0.0.1:8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  ui:
+    image: snake-aiops:local
+    build: .
+    command: streamlit run ui.py --server.address=0.0.0.0 --server.port=8501 --browser.gatherUsageStats=false
+    environment:
+      API_URL: http://api:8000
+      NO_PROXY: localhost,127.0.0.1,mlflow,api
+      no_proxy: localhost,127.0.0.1,mlflow,api
+    mem_limit: 400m
+    ports: ["127.0.0.1:8501:8501"]
+    depends_on:
+      api:
+        condition: service_healthy
+  prometheus:
+    image: prom/prometheus:v3.3.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=2d", "--storage.tsdb.retention.size=256MB"]
+    mem_limit: 250m
+    volumes: ["./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro", "prometheus:/prometheus"]
+    ports: ["127.0.0.1:9090:9090"]
+  grafana:
+    image: grafana/grafana:11.6.1
+    mem_limit: 300m
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana:/var/lib/grafana
+    ports: ["127.0.0.1:3000:3000"]
+volumes:
+  tracking:
+  prometheus:
+  grafana:

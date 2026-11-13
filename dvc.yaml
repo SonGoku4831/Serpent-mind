@@ -1,0 +1,23 @@
+stages:
+  prepare:
+    cmd: python -m snake.prepare
+    deps:
+      - requirements.txt
+      - snake/prepare.py
+      - snake/game.py
+    outs:
+      - data/rollouts.json
+  train:
+    cmd: python -m snake.train --episodes 30000 --seed 42
+    deps:
+      - requirements.txt
+      - data/rollouts.json
+      - snake/game.py
+      - snake/agent.py
+      - snake/train.py
+    outs:
+      - models/q.npz
+      - models/metadata.json
+    metrics:
+      - models/metrics.json:
+          cache: false

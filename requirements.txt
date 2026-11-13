@@ -1,0 +1,14 @@
+numpy==2.2.6
+ray==2.48.0
+mlflow==2.22.0
+dvc==3.59.2
+fastapi==0.115.12
+uvicorn==0.34.2
+streamlit==1.45.1
+requests==2.32.3
+prometheus-client==0.22.0
+pytest==8.3.5
+httpx==0.28.1
+
+SQLAlchemy==2.0.40
+pathspec==0.12.1
