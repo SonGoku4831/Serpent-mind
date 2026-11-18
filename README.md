@@ -10,6 +10,12 @@ on Windows**, with approximately **4 GB RAM and 2 CPU cores**. No GPU, CUDA,
 Pygame, Ubuntu desktop, or Ubuntu browser is needed. A Windows browser can show
 the application through the SSH tunnel below.
 
+## Documentation
+
+- **Installation and operating commands:** this README.
+- **Code and developer guide:** [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) — architecture, file responsibilities, game rules, Q-learning, data/model formats, API examples, metrics and maintenance.
+- **Original validation report:** [VALIDATION.md](VALIDATION.md).
+
 ## Already set up? Start here
 
 If you have already built the image and completed training, run this **inside Ubuntu**:
